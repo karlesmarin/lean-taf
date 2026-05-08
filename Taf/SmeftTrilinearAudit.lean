@@ -341,11 +341,12 @@ theorem flat_direction_witness
 
       δκ₄_{c_φ} - 6·δκ₃_full = -18 (v² / Λ²) · C_{H,kin}
 
-    so the c_φ-only ratio identity *fails* whenever C_{H,kin} ≠ 0 (paper-2
-    doesn't write a δκ₄ formula including c_{φ□}/c_{φD} field-redef
-    contributions; once such a literature target is identified, this file
-    should be extended). The pure-ring identity below makes the failure
-    explicit and quantifies it. -/
+    so the c_φ-only ratio identity *fails* whenever C_{H,kin} ≠ 0. The
+    pure-ring identity below makes the failure explicit and quantifies
+    it (using the c_φ-only δκ₄ on the left, which is what Phase 4 P1
+    defined). Phase 7-A.3 below extends this to the FULL δκ₄ identity
+    using the (50/3)·v²·C_{H,kin}/Λ² redef contribution derived in
+    `audit/verify_alasfar_redef.py`. -/
 theorem delta_kappa_4_minus_six_delta_kappa_3_full
     (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) :
     delta_kappa_4_from_c_phi v m_h c_phi Λ
@@ -353,6 +354,94 @@ theorem delta_kappa_4_minus_six_delta_kappa_3_full
       = -18 * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D) := by
   unfold delta_kappa_4_from_c_phi delta_kappa_3_full
          delta_kappa_3_from_c_phi delta_kappa_3_alasfar_redef_part C_H_kin
+  ring
+
+/-! ## §9 Phase 7-A.3 — full δκ₄ formula with field-redef contributions
+
+After Phase 7-A.2's SymPy derivation and IDEA-027 Brivio-Trott convention
+sweep, the factor-2 discrepancy between paper-2's stated δκ_3 redef
+factor (3) and naive Alasfar substitution (3/2 in physical-mass scheme)
+was traced to a Lagrangian normalization convention:
+
+  - Alasfar 2023 writes  L = (C / (2 Λ²)) O
+  - Paper-2 (Ter Hoeve)  uses standard Warsaw  L = (c / Λ²) O  (no 1/2)
+  - Therefore:  C_Alasfar = 2 × c_paper
+
+After applying this convention to Alasfar eq (2.5) (in paper-2 notation
+the substitution coefficient is `v² C_{H,kin}` with no 1/2 factor) and
+matching V_paper coefficients in the physical-m_h scheme:
+
+  δκ_3|_redef = 3 (v² / Λ²) · C_{H,kin}            ← matches paper-2 ✓
+  δκ_4|_redef = (50/3) (v² / Λ²) · C_{H,kin}        ← NEW (paper-2 silent)
+
+This section encodes the δκ_4 result and proves the corresponding
+structural identities, mirroring §8 for δκ_3. The (50/3) factor was
+verified by SymPy (`audit/verify_alasfar_redef.py` Step 3b output:
+"δκ_4 (physical) = 25 v²(-c_φD + 4 c_φ□)/(6 Λ²)" which equals
+(25 · 4 / 6) v² C_{H,kin}/Λ² = (50/3) v² C_{H,kin}/Λ²).
+-/
+
+/-- Field-redef-induced contribution to δκ_4 (Phase 7-A.2 + IDEA-027 result).
+    Numerical factor (50/3) verified by SymPy substitution of Alasfar
+    eq (2.5) into V_SM, h⁴ coefficient in physical-m_h scheme, with
+    paper-2's standard Warsaw normalization (no Lagrangian /2). -/
+noncomputable def delta_kappa_4_alasfar_redef_part
+    (v c_phi_box c_phi_D Λ : ℝ) : ℝ :=
+  (50 / 3) * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D)
+
+/-- Full δκ_4 formula in paper-2 convention, mirroring `delta_kappa_3_full`. -/
+noncomputable def delta_kappa_4_full
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) : ℝ :=
+  delta_kappa_4_from_c_phi v m_h c_phi Λ
+    + delta_kappa_4_alasfar_redef_part v c_phi_box c_phi_D Λ
+
+theorem delta_kappa_4_full_factorisation
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) :
+    delta_kappa_4_full v m_h c_phi c_phi_box c_phi_D Λ
+      = delta_kappa_4_from_c_phi v m_h c_phi Λ
+        + delta_kappa_4_alasfar_redef_part v c_phi_box c_phi_D Λ := by
+  rfl
+
+theorem delta_kappa_4_full_zero_box_zero_D
+    (v m_h c_phi Λ : ℝ) :
+    delta_kappa_4_full v m_h c_phi 0 0 Λ
+      = delta_kappa_4_from_c_phi v m_h c_phi Λ := by
+  unfold delta_kappa_4_full delta_kappa_4_alasfar_redef_part C_H_kin
+  ring
+
+theorem delta_kappa_4_full_zero_phi
+    (v m_h c_phi_box c_phi_D Λ : ℝ) :
+    delta_kappa_4_full v m_h 0 c_phi_box c_phi_D Λ
+      = delta_kappa_4_alasfar_redef_part v c_phi_box c_phi_D Λ := by
+  unfold delta_kappa_4_full delta_kappa_4_from_c_phi
+  ring
+
+/-- The exact deviation of full δκ_4 from 6·full δκ_3. Pure ring identity:
+
+      δκ_4_full - 6·δκ_3_full = -(4/3) (v² / Λ²) C_{H,kin}
+
+    The c_φ piece cancels exactly (because c_φ-only ratio is 6, Phase 4 P1).
+    The remainder lives entirely in the redef sector. The coefficient
+    -4/3 = (50/3 - 18) measures how much the redef sector violates the
+    c_φ-only "factor-of-6" ratio. -/
+theorem delta_kappa_4_full_minus_six_delta_kappa_3_full
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) :
+    delta_kappa_4_full v m_h c_phi c_phi_box c_phi_D Λ
+      - 6 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ
+      = -(4 / 3) * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D) := by
+  unfold delta_kappa_4_full delta_kappa_4_from_c_phi
+         delta_kappa_4_alasfar_redef_part
+         delta_kappa_3_full delta_kappa_3_from_c_phi
+         delta_kappa_3_alasfar_redef_part C_H_kin
+  ring
+
+/-- Redef-only ratio: 9·δκ_4_redef = 50·δκ_3_redef. Equivalent to the
+    redef-only ratio δκ_4/δκ_3 = 50/9 ≈ 5.56 (Phase 7-A.2 SymPy result). -/
+theorem delta_kappa_4_redef_ratio
+    (v c_phi_box c_phi_D Λ : ℝ) :
+    9 * delta_kappa_4_alasfar_redef_part v c_phi_box c_phi_D Λ
+      = 50 * delta_kappa_3_alasfar_redef_part v c_phi_box c_phi_D Λ := by
+  unfold delta_kappa_4_alasfar_redef_part delta_kappa_3_alasfar_redef_part
   ring
 
 end Taf.SmeftTrilinearAudit
