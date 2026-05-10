@@ -533,4 +533,195 @@ theorem rge_invariance_witness_on_hyperplane
   unfold C_H_kin
   norm_num
 
+/-! ## §11 K11 / K15 — LO ring identities for δκ_5 and δκ_6 (post-geoSMEFT)
+
+  Extension of the K07 identity to higher Higgs self-couplings.
+  Derived 2026-05-10 in `E:\proyectos\SMEFT\` workspace, with closed forms:
+
+    K11_BHR: δκ_5 - 15·δκ_3 = 5α(12α³+75α²+68α-3)/(3(α+1)²)
+    K15_BHR: δκ_6 - 15·δκ_3 = 5α(α+3)(132α²+99α-1)/(3(α+1)²)
+
+  where α = v² C_{H,kin}/Λ². These are BHR-convention all-orders forms.
+
+  ## Basis-dependence note (geoSMEFT test, 2026-05-10)
+
+  Direct comparison with HMT 2001.01453 (canonical geoSMEFT, Eq 4.1-4.2) via
+  proper canonicalization of the kinetic term h_44(h) = 1 - 2(h+v)² α/v²
+  (script `papers_audited/F2_sextic/scripts/03_geoSMEFT_canonical.py`):
+
+  - LO in α: BHR and canonical geoSMEFT match EXACTLY.
+    Ring identities `G_4 = -4α/3, G_5 = -5α, G_6 = -5α` are PHYSICAL,
+    basis-independent.
+  - NLO α² and beyond: closed forms diverge. The (1+α)^{-2} denominator
+    is a BHR-convention all-orders resummation, NOT physical structure.
+
+  This Lean section therefore formalises ONLY the LO-physical content of
+  K11/K15. The BHR-convention all-orders closed forms are encoded as
+  separate, basis-dependent definitions for cross-checking, but the
+  ring-identity theorems are stated at LO α.
+
+  ## c_φ contributions
+
+  c_φ piece of δκ_n comes from h^n coefficient of O_φ = (vh + h²/2)³:
+    h^3: v³        → δκ_3|_{c_φ} = -2 v^4 c_φ / (m_h² Λ²)
+    h^4: 3v²/2     → δκ_4|_{c_φ} = -12 v^4 c_φ / (m_h² Λ²)
+    h^5: 3v/4      → δκ_5|_{c_φ} = -30 v^4 c_φ / (m_h² Λ²)
+    h^6: 1/8       → δκ_6|_{c_φ} = -30 v^4 c_φ / (m_h² Λ²)
+
+  (Identical numerical factor -30 for h^5 and h^6 is a consequence of
+   the BHR N_n = n!/3! normalization: N_5 = 20 vs N_6 = 120, and the
+   ratio of h^5 to h^6 coefs in (vh + h²/2)^3 is (3v/4)/(1/8) = 6v.
+   After multiplying by N_n/v^(n-2)/m_h² etc, both give -30 v^4/(m_h² Λ²).)
+
+  Ring-identity cancellations (c_φ part):
+    δκ_5|_{c_φ} - 15·δκ_3|_{c_φ} = -30 + 30 = 0 ✓ (c_φ piece cancels)
+    δκ_6|_{c_φ} - 15·δκ_3|_{c_φ} = -30 + 30 = 0 ✓ (c_φ piece cancels)
+
+  So the full G_5 and G_6 ring identities reduce to the redef piece only,
+  matching the LO geoSMEFT canonical result.
+
+  ## Redef contributions at LO α
+
+  From SymPy derivations (`papers_audited/F1_quintic/scripts/05_*.py`,
+  `papers_audited/F2_sextic/scripts/01_*.py`):
+    δκ_5|_redef LO = 40 (v²/Λ²) C_{H,kin}    (i.e., 40α)
+    δκ_6|_redef LO = 40 (v²/Λ²) C_{H,kin}    (i.e., 40α)
+
+  Ring-identity (redef-only) at LO:
+    δκ_5|_redef - 15·δκ_3|_redef = 40 - 15·3 = -5  → -5α ✓ matches geoSMEFT
+    δκ_6|_redef - 15·δκ_3|_redef = 40 - 15·3 = -5  → -5α ✓ matches geoSMEFT
+
+  Both K11 and K15 LO ring identities have the SAME coefficient -5α.
+-/
+
+/-- δκ_5 c_φ piece, from h⁵ coefficient of O_φ = (vh+h²/2)³ matched
+    against V_paper ⊃ (κ_5/20)(λ/v) h⁵. -/
+noncomputable def delta_kappa_5_from_c_phi (v m_h c_phi Λ : ℝ) : ℝ :=
+  -30 * v^4 * c_phi / (m_h^2 * Λ^2)
+
+/-- δκ_6 c_φ piece, from h⁶ coefficient of O_φ = (vh+h²/2)³ matched
+    against V_paper ⊃ (κ_6/120)(λ/v²) h⁶. -/
+noncomputable def delta_kappa_6_from_c_phi (v m_h c_phi Λ : ℝ) : ℝ :=
+  -30 * v^4 * c_phi / (m_h^2 * Λ^2)
+
+/-- δκ_5 LO redef piece. From Alasfar h_old = h + αP applied to V_SM, h⁵
+    coefficient in BHR convention with N_5 = 20.  Coefficient `40` is the
+    `coef[hc^1]` of δκ_5 series in α — see
+    `papers_audited/F2_sextic/scripts/02_geoSMEFT_comparison.py` output:
+    "LO in alpha: dk5 ~ 40*alpha_sym". -/
+noncomputable def delta_kappa_5_alasfar_redef_part_LO
+    (v c_phi_box c_phi_D Λ : ℝ) : ℝ :=
+  40 * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D)
+
+/-- δκ_6 LO redef piece. Same numerical factor `40` as δκ_5 at LO. -/
+noncomputable def delta_kappa_6_alasfar_redef_part_LO
+    (v c_phi_box c_phi_D Λ : ℝ) : ℝ :=
+  40 * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D)
+
+/-- Full δκ_5 at LO = c_φ piece + LO redef piece. -/
+noncomputable def delta_kappa_5_full_LO
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) : ℝ :=
+  delta_kappa_5_from_c_phi v m_h c_phi Λ
+    + delta_kappa_5_alasfar_redef_part_LO v c_phi_box c_phi_D Λ
+
+/-- Full δκ_6 at LO = c_φ piece + LO redef piece. -/
+noncomputable def delta_kappa_6_full_LO
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) : ℝ :=
+  delta_kappa_6_from_c_phi v m_h c_phi Λ
+    + delta_kappa_6_alasfar_redef_part_LO v c_phi_box c_phi_D Λ
+
+/-- **K11 LO ring identity** (PHYSICAL, basis-independent):
+
+      δκ_5_full_LO - 15 · δκ_3_full = -5 (v² / Λ²) · C_{H,kin}
+
+    The c_φ pieces cancel exactly (−30 − 15·(−2) = 0). The remainder
+    lives entirely in the redef sector with coefficient `-5α`.
+
+    This matches canonical geoSMEFT at LO (verified 2026-05-10 by direct
+    comparison with HMT 2001.01453 Eq 4.2 in canonical kinetic frame).
+    The all-orders BHR closed form `K11_BHR` extends this with NLO+
+    terms that ARE basis-dependent (Alasfar-specific). -/
+theorem K11_LO_ring_identity
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) :
+    delta_kappa_5_full_LO v m_h c_phi c_phi_box c_phi_D Λ
+      - 15 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ
+      = -5 * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D) := by
+  unfold delta_kappa_5_full_LO delta_kappa_5_from_c_phi
+         delta_kappa_5_alasfar_redef_part_LO
+         delta_kappa_3_full delta_kappa_3_from_c_phi
+         delta_kappa_3_alasfar_redef_part C_H_kin
+  ring
+
+/-- **K15 LO ring identity** (PHYSICAL, basis-independent):
+
+      δκ_6_full_LO - 15 · δκ_3_full = -5 (v² / Λ²) · C_{H,kin}
+
+    Same coefficient `-5` as K11 — the two identities collapse onto
+    each other at LO α. Beyond LO they diverge (the BHR all-orders
+    K15 has an extra (α+3) factor in the numerator absent from K11,
+    but per geoSMEFT test 2026-05-10 this is a basis-dependent
+    artifact of the BHR-Alasfar convention, see K18 status update
+    in `literature/04_formula_catalog.md`). -/
+theorem K15_LO_ring_identity
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) :
+    delta_kappa_6_full_LO v m_h c_phi c_phi_box c_phi_D Λ
+      - 15 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ
+      = -5 * (v^2 / Λ^2) * (C_H_kin c_phi_box c_phi_D) := by
+  unfold delta_kappa_6_full_LO delta_kappa_6_from_c_phi
+         delta_kappa_6_alasfar_redef_part_LO
+         delta_kappa_3_full delta_kappa_3_from_c_phi
+         delta_kappa_3_alasfar_redef_part C_H_kin
+  ring
+
+/-- **K11 ≡ K15 at LO**: the two LO ring identities have the SAME
+    closed form. This collapse is itself a consequence of the
+    c_φ-cancellation symmetry and the equality of LO redef
+    coefficients (both 40). -/
+theorem K11_K15_LO_collapse
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ) :
+    delta_kappa_5_full_LO v m_h c_phi c_phi_box c_phi_D Λ
+      - 15 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ
+    = delta_kappa_6_full_LO v m_h c_phi c_phi_box c_phi_D Λ
+        - 15 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ := by
+  rw [K11_LO_ring_identity, K15_LO_ring_identity]
+
+/-- Consistency: c_φ-only contribution to K11 ring identity vanishes. -/
+theorem K11_c_phi_piece_cancels
+    (v m_h c_phi Λ : ℝ) :
+    delta_kappa_5_from_c_phi v m_h c_phi Λ
+      - 15 * delta_kappa_3_from_c_phi v m_h c_phi Λ
+      = 0 := by
+  unfold delta_kappa_5_from_c_phi delta_kappa_3_from_c_phi
+  ring
+
+/-- Consistency: c_φ-only contribution to K15 ring identity vanishes. -/
+theorem K15_c_phi_piece_cancels
+    (v m_h c_phi Λ : ℝ) :
+    delta_kappa_6_from_c_phi v m_h c_phi Λ
+      - 15 * delta_kappa_3_from_c_phi v m_h c_phi Λ
+      = 0 := by
+  unfold delta_kappa_6_from_c_phi delta_kappa_3_from_c_phi
+  ring
+
+/-- **K11 + K15 collapsed: the structural fact at LO α**:
+
+      Both ring identities equal `-5 (v²/Λ²) C_{H,kin}` exactly,
+      and vanish on the kinetic hyperplane C_{H,kin} = 0.
+
+    Together with K07 (= `delta_kappa_4_full_minus_six_delta_kappa_3_full`
+    in §9), this gives the LO closed forms for n = 4, 5, 6 Higgs
+    self-couplings — all three vanish on the same hyperplane. -/
+theorem K11_K15_vanish_on_kinetic_hyperplane
+    (v m_h c_phi c_phi_box c_phi_D Λ : ℝ)
+    (h_kin : C_H_kin c_phi_box c_phi_D = 0) :
+    delta_kappa_5_full_LO v m_h c_phi c_phi_box c_phi_D Λ
+      = 15 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ
+    ∧ delta_kappa_6_full_LO v m_h c_phi c_phi_box c_phi_D Λ
+      = 15 * delta_kappa_3_full v m_h c_phi c_phi_box c_phi_D Λ := by
+  refine ⟨?_, ?_⟩
+  · have h := K11_LO_ring_identity v m_h c_phi c_phi_box c_phi_D Λ
+    rw [h_kin] at h; linarith
+  · have h := K15_LO_ring_identity v m_h c_phi c_phi_box c_phi_D Λ
+    rw [h_kin] at h; linarith
+
 end Taf.SmeftTrilinearAudit
