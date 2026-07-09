@@ -8,3 +8,4 @@ import Taf.RGFlow
 import Taf.CvHagedornCorrection
 import Taf.ErratumCV
 import Taf.SmeftTrilinearAudit
+import Taf.ScalingLawIdentities
