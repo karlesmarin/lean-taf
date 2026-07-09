@@ -2,7 +2,7 @@
 
 Lean 4 + Mathlib formalization of the TAF (Triangulum Attention Framework) algebraic identities used in [`predicting-how-transformers-attend`](https://github.com/karlesmarin/predicting-how-transformers-attend).
 
-**Status (commit `25c77fd`, 2026-05-05):** 37 theorems machine-verified, 0 `sorry`s, 1 substantive finding (V/β factor-2 inconsistency in the paper's formula tables, formally proved in `V_derivative_ne_RG_beta`).
+**Status (2026-07-09):** 83 theorems machine-verified, 0 `sorry`s, 1 substantive finding (V/β factor-2 inconsistency in the paper's formula tables, formally proved in `V_derivative_ne_RG_beta`). Latest additions: `GammaMobius.lean` (Padé γ as a Möbius transform of one reduced variable — built green, 8371 jobs, 2026-07-09), `ScalingLawIdentities.lean` (9 scaling-law identities), `SmeftTrilinearAudit.lean` (31 theorems, paper-2 SMEFT trilinear couplings).
 
 - Lean toolchain: `leanprover/lean4:v4.30.0-rc2`
 - Mathlib: pinned via `lake-manifest.json`
@@ -26,14 +26,20 @@ lake env lean Taf/RGFlow.lean
 lake env lean Taf/AmGmPade.lean
 lake env lean Taf/ErratumCV.lean
 lake env lean Taf/CvHagedornCorrection.lean
+lake env lean Taf/GammaMobius.lean
+lake env lean Taf/ScalingLawIdentities.lean
+lake env lean Taf/SmeftTrilinearAudit.lean
 ```
 
 Lean follows the "no news is good news" convention: a successful run prints nothing. Any `sorry`, axiom, or typecheck error surfaces immediately.
 
-## Theorem groups (37 total)
+## Theorem groups (83 total)
 
 | Group | Count | Source files | What it proves |
 |-------|-------|--------------|----------------|
+| **γ Möbius collapse** | 6 | `GammaMobius.lean` | γ_Padé = (1−u)/(1+u) with u = T/(θ√2) (the √2 is load-bearing, needs s²=2); inverse (1−γ)/(1+γ)=u; **d_horizon = T** (the "information horizon" is a tautology of the Padé formula); β = −2u/(1+u)²; √2 instantiation |
+| **Scaling-law identities** | 9 | `ScalingLawIdentities.lean` | TAF scaling-law algebraic identities |
+| **SMEFT trilinear audit (paper-2)** | 31 | `SmeftTrilinearAudit.lean` | δκ₄/δκ₃ ratio, field-redefinition extension, RGE structural invariance, K11_LO/K15_LO ring identities |
 | Padé approximant identities | 5 | `RGFlow.lean`, `AmGmPade.lean` | γ_Padé canonical form, θ_eff_Padé closed form, Padé[2,2]−Padé[1,1] residue, saturation coefficient at z = 0 |
 | RG flow / β-function | 6 | `RGFlow.lean` | Logistic→β substitution, V derivative, **factor-2 finding**, V_correct, trajectory sign convention |
 | Cayley fixed-point + χ | 5 | `RGFlow.lean` | z* = (√17−3)/2, χ = (5+√17)/4, Floquet stability |
@@ -71,6 +77,9 @@ V_correct(γ) = γ/2 − γ³/6
 
 | File | Theorems | Topics |
 |------|----------|--------|
+| `Taf/GammaMobius.lean` | 6 | Padé γ as Möbius transform of u = T/(θ√2); d_horizon = T tautology; β in u |
+| `Taf/ScalingLawIdentities.lean` | 9 | TAF scaling-law identities |
+| `Taf/SmeftTrilinearAudit.lean` | 31 | paper-2 SMEFT trilinear couplings (δκ₄/δκ₃, RGE invariance, ring identities) |
 | `Taf/RGFlow.lean` | 17 | Padé identities, RG β-function, Cayley fixed-point, χ susceptibility, RoPE β-form, CFT ν |
 | `Taf/Identities.lean` | 13 | D-SAGE Groebner-discovered identities, η = 2γ refutation, ν_imprint dimensional check |
 | `Taf/AmGmPade.lean` | 2 | AM-GM bound on γ_χ, Padé saturation leading coefficient |
