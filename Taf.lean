@@ -2,6 +2,7 @@
 -- Import modules here that should be built as part of the library.
 import Taf.Basic
 import Taf.Identities
+import Taf.GammaMobius
 import Taf.AmGmPade
 import Taf.RGFlow
 import Taf.CvHagedornCorrection
