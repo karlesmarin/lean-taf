@@ -4,6 +4,17 @@ Lean 4 + Mathlib formalization of the TAF (Triangulum Attention Framework) algeb
 
 **Status (2026-07-09):** 83 theorems machine-verified, 0 `sorry`s, 1 substantive finding (V/β factor-2 inconsistency in the paper's formula tables, formally proved in `V_derivative_ne_RG_beta`). Latest additions: `GammaMobius.lean` (Padé γ as a Möbius transform of one reduced variable — built green, 8371 jobs, 2026-07-09), `ScalingLawIdentities.lean` (9 scaling-law identities), `SmeftTrilinearAudit.lean` (31 theorems, paper-2 SMEFT trilinear couplings).
 
+> **Correction (2026-10-19).** The status above is too strong for one file. `Taf/Identities.lean` uses
+> `Real.arctanh`, `Real.arctanh_eq_log`, `Real.deriv_arctanh` and `Real.differentiableAt_arctanh`, which do not exist
+> in the pinned Mathlib (`9bde4b2`) or in later versions; Mathlib's function is `Real.artanh`. Compiled with the pinned
+> toolchain, the file reports errors in three theorems, `D_DEEP_15_phase7`, `D_DEEP_22` and
+> `D_DEEP_15_phase8_residual`, so these three were never checked and `lake build` of the whole library does not
+> succeed; the other theorems of the file elaborate. The three statements hold: they are ported to Lean `v4.35.0` in
+> [`karlesmarin/formalizations`](https://github.com/karlesmarin/formalizations),
+> `Formalizations/Analysis/TransformerAttention/CardyPDI.lean` (`log_pdi_add_dHCardyPhase7`,
+> `deriv_dHCardyPhase8`, `log_pdi_add_dHCardyPhase8`), via `Real.artanh`, with only the standard axioms. This
+> repository is kept unchanged as the snapshot the TAF materials cite.
+
 - Lean toolchain: `leanprover/lean4:v4.30.0-rc2`
 - Mathlib: pinned via `lake-manifest.json`
 - Build: 1973 jobs, ~5 s after Mathlib cache fetch
